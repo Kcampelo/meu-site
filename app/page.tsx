@@ -68,6 +68,7 @@ export default function Home() {
         </button>
         <nav className={menuOpen ? "nav open" : "nav"} aria-label="Navegação principal">
           <a href="#servicos" onClick={closeMenu}>Soluções</a>
+          <a href="#metodo" onClick={closeMenu}>Como atuamos</a>
           <a href="#diferenciais" onClick={closeMenu}>Diferenciais</a>
           <a href="#cases" onClick={closeMenu}>Cases</a>
           <a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer" onClick={closeMenu}>
@@ -132,6 +133,32 @@ export default function Home() {
           </p>
           <a href="#diferenciais">Por que escolher a Integra <span>→</span></a>
         </div>
+      </section>
+
+      <section className="method section" id="metodo">
+        <div className="method-copy">
+          <p className="section-kicker">Nossa proposta end-to-end</p>
+          <h2>Da origem dos dados<br />à decisão de negócio.</h2>
+          <p>
+            Conectamos todas as etapas da jornada: integramos suas fontes, estruturamos
+            o armazenamento, tratamos e modelamos os dados e entregamos informações
+            prontas para análise e ação.
+          </p>
+          <div className="method-steps" aria-label="Etapas da proposta de trabalho">
+            <span>01 <b>Ingestão</b></span>
+            <span>02 <b>Armazenamento</b></span>
+            <span>03 <b>Transformação</b></span>
+            <span>04 <b>Visualização</b></span>
+          </div>
+        </div>
+        <figure className="pipeline-visual">
+          <img
+            src="/pipeline-end-to-end.webp"
+            alt="Animação do pipeline de dados da Integra, conectando fontes, Data Lake, tratamento, Data Warehouse e ferramentas de análise"
+            loading="lazy"
+          />
+          <figcaption>Pipeline de dados: da origem ao consumo</figcaption>
+        </figure>
       </section>
 
       <section className="services section" id="servicos">
