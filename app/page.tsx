@@ -54,7 +54,7 @@ export default function Home() {
     <main>
       <header className={scrolled ? "site-header scrolled" : "site-header"}>
         <a className="brand" href="#inicio" aria-label="Integra Consultora - início">
-          <img src="/logo-integra.png" alt="Integra Consultora" />
+          <img src="/logo-integra-nitida.png" alt="Integra Consultora" />
         </a>
         <button
           className="menu-toggle"
@@ -243,7 +243,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <img src="/logo-integra.png" alt="Integra Consultora" />
+        <img src="/logo-integra-nitida.png" alt="Integra Consultora" />
         <div>
           <a href="mailto:consultoria@integraconsultora.com.br">consultoria@integraconsultora.com.br</a>
           <a href={whatsapp} target="_blank" rel="noreferrer">+55 43 99154-4867</a>
