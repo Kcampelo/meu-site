@@ -149,6 +149,37 @@ h1 em { font-style: normal; background: linear-gradient(90deg, var(--violet-soft
 .dash-bars i { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(var(--violet), var(--violet-soft)); }
 .dash-bars i:nth-child(6) { background: linear-gradient(var(--amber), #ffd28f); }
 
+/* Telas reais dos apps */
+.pf-screens { width: 100%; height: 310px; border: 0; padding: 0; font: inherit; cursor: zoom-in; }
+.pf-screens .shot { position: absolute; top: 40px; left: 50%; width: 128px; height: auto; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 14px; border: 3px solid rgba(255,255,255,.92); background: #fff; box-shadow: 0 18px 40px rgba(0,0,0,.45); transition: transform .35s ease; }
+.pf-screens .shot-0 { z-index: 3; top: 22px; width: 150px; transform: translateX(-50%); }
+.pf-screens .shot-1 { z-index: 2; transform: translateX(-122%) rotate(-7deg); }
+.pf-screens .shot-2 { z-index: 2; transform: translateX(22%) rotate(7deg); }
+.pf-card:hover .shot-0, .pf-screens:focus-visible .shot-0 { transform: translateX(-50%) translateY(-8px); }
+.pf-card:hover .shot-1, .pf-screens:focus-visible .shot-1 { transform: translateX(-132%) rotate(-10deg); }
+.pf-card:hover .shot-2, .pf-screens:focus-visible .shot-2 { transform: translateX(32%) rotate(10deg); }
+.pf-zoom { position: absolute; z-index: 4; right: 14px; bottom: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(0,10,36,.78); color: #fff; font: 600 12px var(--font-body); backdrop-filter: blur(6px); }
+
+/* Galeria */
+.lightbox { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; background: rgba(0,6,24,.9); backdrop-filter: blur(8px); animation: fadeIn .2s ease; }
+.lb-inner { width: min(460px, 100%); max-height: 100%; display: flex; flex-direction: column; gap: 14px; color: #fff; }
+.lb-head { display: flex; align-items: center; gap: 12px; }
+.lb-head b { flex: 1; font: 600 18px var(--font-display); }
+.lb-head span { font: 12px var(--font-mono); color: #aab4d6; }
+.lb-close { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff; font-size: 24px; line-height: 1; }
+.lb-stage { position: relative; display: flex; justify-content: center; }
+.lb-stage img { display: block; width: auto; max-width: 100%; height: min(68vh, 640px); aspect-ratio: 9 / 16; object-fit: contain; border-radius: 18px; background: #fff; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.lb-nav { position: absolute; top: 50%; z-index: 2; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); font-size: 26px; line-height: 1; box-shadow: 0 8px 20px rgba(0,0,0,.3); transform: translateY(-50%); }
+.lb-prev { left: -6px; }
+.lb-next { right: -6px; }
+.lb-caption { margin: 0; text-align: center; color: #c4cbe6; font-size: 14px; }
+.lb-thumbs { display: flex; justify-content: center; gap: 8px; }
+.lb-thumbs button { width: 44px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: none; opacity: .55; transition: opacity .2s; }
+.lb-thumbs button.active, .lb-thumbs button:hover { opacity: 1; }
+.lb-thumbs button.active { border-color: var(--amber); }
+.lb-thumbs img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: cover; }
+@keyframes fadeIn { from { opacity: 0; } }
+
 .pf-body { display: flex; flex-direction: column; flex: 1; padding: 26px 26px 28px; }
 .pf-meta { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .pf-cat { font: 600 11px var(--font-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--violet); }
@@ -243,6 +274,8 @@ footer a:hover { color: #fff; }
   .section-heading { flex-direction: column; align-items: flex-start; gap: 20px; }
   .service-grid, .pf-grid { grid-template-columns: 1fr; }
   .pf-cta { flex-direction: column; text-align: center; }
+  .lb-prev { left: 6px; }
+  .lb-next { right: 6px; }
   .pipeline-visual figcaption { position: static; display: block; margin-top: 8px; }
   .contact { padding: 90px 20px; }
   .contact-actions .btn { width: 100%; }

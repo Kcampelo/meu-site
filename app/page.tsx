@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { categories, projects, type Project, type ProjectCategory } from "./portfolio";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { categories, projects, type Project, type ProjectCategory, type Screen } from "./portfolio";
 
 const whatsapp =
   "https://wa.me/5543991544867?text=Olá%2C%20vim%20pelo%20site%20da%20Integra%20Consultora%20e%20gostaria%20de%20conversar%20sobre%20uma%20solução%20em%20dados.";
@@ -45,7 +45,34 @@ const steps = [
 
 const stack = ["Azure", "Databricks", "Data Factory", "Power BI", "Python", "SQL", "Delta Lake", "Kotlin", "Jetpack Compose", "APIs REST"];
 
-function ProjectVisual({ project }: { project: Project }) {
+type Gallery = { title: string; screens: Screen[]; index: number };
+
+function ProjectVisual({ project, onOpen }: { project: Project; onOpen: (index: number) => void }) {
+  if (project.screens?.length) {
+    return (
+      <button
+        type="button"
+        className="pf-media pf-media-app pf-screens"
+        onClick={() => onOpen(0)}
+        aria-label={`Ver as ${project.screens.length} telas do ${project.title}`}
+      >
+        {project.screens.slice(0, 3).map((screen, i) => (
+          <img
+            key={screen.sm}
+            className={`shot shot-${i}`}
+            src={screen.sm}
+            alt={i === 0 ? screen.alt : ""}
+            width={360}
+            height={640}
+            loading="lazy"
+            decoding="async"
+          />
+        ))}
+        <span className="pf-zoom">Ver {project.screens.length} telas</span>
+      </button>
+    );
+  }
+
   if (project.image) {
     return (
       <div className={`pf-media pf-media-${project.category}`}>
@@ -97,6 +124,28 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [filter, setFilter] = useState<"todos" | ProjectCategory>("todos");
+  const [gallery, setGallery] = useState<Gallery | null>(null);
+
+  const step = useCallback((delta: number) => {
+    setGallery((g) => g && { ...g, index: (g.index + delta + g.screens.length) % g.screens.length });
+  }, []);
+
+  const isGalleryOpen = gallery !== null;
+  useEffect(() => {
+    if (!isGalleryOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setGallery(null);
+      else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowLeft") step(-1);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isGalleryOpen, step]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -258,7 +307,10 @@ export default function Home() {
         <div className="pf-grid">
           {visibleProjects.map((p) => (
             <article className={`pf-card pf-${p.category}`} key={p.id}>
-              <ProjectVisual project={p} />
+              <ProjectVisual
+                project={p}
+                onOpen={(index) => p.screens && setGallery({ title: p.title, screens: p.screens, index })}
+              />
               <div className="pf-body">
                 <div className="pf-meta">
                   <span className="pf-cat">{categories.find((c) => c.id === p.category)?.label}</span>
@@ -340,6 +392,48 @@ export default function Home() {
         </div>
         <p>© {new Date().getFullYear()} Integra Consultora</p>
       </footer>
+
+      {gallery && (
+        <div
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Telas do ${gallery.title}`}
+          onClick={() => setGallery(null)}
+        >
+          <div className="lb-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="lb-head">
+              <b>{gallery.title}</b>
+              <span>{gallery.index + 1} / {gallery.screens.length}</span>
+              <button type="button" className="lb-close" onClick={() => setGallery(null)} aria-label="Fechar galeria">×</button>
+            </div>
+            <div className="lb-stage">
+              <button type="button" className="lb-nav lb-prev" onClick={() => step(-1)} aria-label="Tela anterior">‹</button>
+              <img
+                src={gallery.screens[gallery.index].lg}
+                alt={gallery.screens[gallery.index].alt}
+                width={720}
+                height={1280}
+              />
+              <button type="button" className="lb-nav lb-next" onClick={() => step(1)} aria-label="Próxima tela">›</button>
+            </div>
+            <p className="lb-caption">{gallery.screens[gallery.index].alt}</p>
+            <div className="lb-thumbs">
+              {gallery.screens.map((screen, i) => (
+                <button
+                  key={screen.sm}
+                  type="button"
+                  className={i === gallery.index ? "active" : ""}
+                  onClick={() => setGallery({ ...gallery, index: i })}
+                  aria-label={`Tela ${i + 1}: ${screen.alt}`}
+                >
+                  <img src={screen.sm} alt="" width={360} height={640} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <a className="whatsapp-float" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Falar pelo WhatsApp">
         <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
