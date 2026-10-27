@@ -1,51 +1,119 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { categories, projects, type Project, type ProjectCategory } from "./portfolio";
 
 const whatsapp =
   "https://wa.me/5543991544867?text=Olá%2C%20vim%20pelo%20site%20da%20Integra%20Consultora%20e%20gostaria%20de%20conversar%20sobre%20uma%20solução%20em%20dados.";
 const email =
   "mailto:consultoria@integraconsultora.com.br?subject=Contato%20pelo%20site%20-%20Integra%20Consultora";
+const instagram = "https://www.instagram.com/dadoscomintegra/";
 
 const services = [
   {
-    tag: "01",
+    icon: "DE",
     title: "Engenharia de Dados",
-    text: "Arquiteturas modernas, pipelines e integrações para coletar, processar e disponibilizar dados com segurança, escala e performance.",
-    points: ["Data Warehouse & Lakehouse", "ETL, APIs e integrações", "Microsoft Azure & Databricks"],
+    text: "Pipelines, integrações e arquiteturas Lakehouse para ter dados confiáveis, organizados e prontos para uso.",
+    points: ["Azure Data Factory & Databricks", "ETL, APIs e integrações", "Data Lake & Data Warehouse"],
   },
   {
-    tag: "02",
-    title: "Análise & Power BI",
-    text: "Dashboards interativos e indicadores confiáveis para transformar informação em decisões mais rápidas e melhores.",
-    points: ["Dashboards executivos", "Indicadores estratégicos", "Visualização em tempo real"],
+    icon: "BI",
+    title: "Power BI & Analytics",
+    text: "Dashboards executivos e indicadores claros para quem precisa decidir rápido, sem planilha paralela.",
+    points: ["Modelagem e DAX", "Dashboards executivos", "Indicadores estratégicos"],
   },
   {
-    tag: "03",
-    title: "IA & Automação",
-    text: "Automações e soluções inteligentes para reduzir tarefas repetitivas, analisar documentos e apoiar decisões.",
-    points: ["Agentes inteligentes", "Automação de processos", "Python e aplicações sob medida"],
+    icon: "PY",
+    title: "Automação & IA",
+    text: "Automação de rotinas com Python e IA para reduzir trabalho manual e liberar o time para o que importa.",
+    points: ["Automação de processos", "Agentes e IA aplicada", "Scripts e APIs sob medida"],
+  },
+  {
+    icon: "AP",
+    title: "Apps sob medida",
+    text: "Aplicativos Android nativos, rápidos e intuitivos, conectados aos dados do seu negócio.",
+    points: ["Kotlin & Jetpack Compose", "Foco em performance", "Publicação na Google Play"],
   },
 ];
 
-const benefits = [
-  "Eliminar silos de informação",
-  "Reduzir custos operacionais",
-  "Aumentar a produtividade",
-  "Decidir com dados confiáveis",
-  "Escalar com governança",
-  "Acelerar a transformação digital",
+const steps = [
+  { n: "01", title: "Diagnóstico", text: "Entendemos o negócio, as fontes de dados e a decisão que precisa ser tomada." },
+  { n: "02", title: "Arquitetura", text: "Desenhamos a solução certa para o seu tamanho — sem excesso de ferramenta." },
+  { n: "03", title: "Construção", text: "Pipelines, modelos e dashboards entregues em ciclos curtos e validados com você." },
+  { n: "04", title: "Evolução", text: "Documentação, repasse e acompanhamento para a solução crescer com a empresa." },
 ];
+
+const stack = ["Azure", "Databricks", "Data Factory", "Power BI", "Python", "SQL", "Delta Lake", "Kotlin", "Jetpack Compose", "APIs REST"];
+
+function ProjectVisual({ project }: { project: Project }) {
+  if (project.image) {
+    return (
+      <div className={`pf-media pf-media-${project.category}`}>
+        <img src={project.image} alt={`Imagem do projeto ${project.title}`} loading="lazy" />
+      </div>
+    );
+  }
+
+  if (project.category === "app") {
+    return (
+      <div className="pf-media pf-media-app" aria-hidden="true">
+        <div className="phone">
+          <div className="phone-notch" />
+          <div className="phone-title">{project.title}</div>
+          {(project.mock ?? []).map((row, i) => (
+            <div className="phone-row" key={row}>
+              <i className={i === 0 ? "done" : ""} />
+              <span>{row}</span>
+            </div>
+          ))}
+          <div className="phone-fab">+</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pf-media pf-media-dashboard" aria-hidden="true">
+      <div className="dash">
+        <div className="dash-kpis">
+          {(project.mock ?? ["KPI 1", "KPI 2", "KPI 3"]).map((kpi, i) => (
+            <div key={kpi}>
+              <small>{kpi}</small>
+              <b>{["R$ 1,24M", "R$ 384K", "31,0%"][i] ?? "—"}</b>
+            </div>
+          ))}
+        </div>
+        <div className="dash-bars">
+          {[38, 62, 46, 78, 69, 92, 84].map((h, i) => (
+            <i key={i} style={{ height: `${h}%` }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [filter, setFilter] = useState<"todos" | ProjectCategory>("todos");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const visibleProjects = useMemo(
+    () => (filter === "todos" ? projects : projects.filter((p) => p.category === filter)),
+    [filter],
+  );
+
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { todos: projects.length };
+    for (const p of projects) map[p.category] = (map[p.category] ?? 0) + 1;
+    return map;
   }, []);
 
   const closeMenu = () => setMenuOpen(false);
@@ -59,7 +127,7 @@ export default function Home() {
         <button
           className="menu-toggle"
           type="button"
-          aria-label="Abrir menu"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(!menuOpen)}
         >
@@ -68,88 +136,171 @@ export default function Home() {
         </button>
         <nav className={menuOpen ? "nav open" : "nav"} aria-label="Navegação principal">
           <a href="#servicos" onClick={closeMenu}>Soluções</a>
-          <a href="#metodo" onClick={closeMenu}>Como atuamos</a>
-          <a href="#diferenciais" onClick={closeMenu}>Diferenciais</a>
-          <a href="#cases" onClick={closeMenu}>Cases</a>
+          <a href="#portfolio" onClick={closeMenu}>Portfólio</a>
+          <a href="#metodo" onClick={closeMenu}>Como trabalho</a>
+          <a href="#contato" onClick={closeMenu}>Contato</a>
           <a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer" onClick={closeMenu}>
-            Vamos conversar
+            Agendar conversa
           </a>
         </nav>
       </header>
 
       <section className="hero" id="inicio">
-        <div className="hero-glow glow-one" />
-        <div className="hero-glow glow-two" />
-        <div className="pixel-field" aria-hidden="true">
-          <i /><i /><i /><i /><i /><i /><i /><i />
-        </div>
+        <div className="hero-grid" aria-hidden="true" />
         <div className="hero-content">
-          <p className="eyebrow"><span /> Inteligência que gera resultado</p>
+          <p className="eyebrow"><span className="dot" /> Engenharia de Dados · Power BI · Apps</p>
           <h1>
-            Seus dados podem fazer
-            <em> muito mais.</em>
+            Seus dados,
+            <br />
+            <em>integrados</em> e
+            <br />
+            trabalhando por você.
           </h1>
           <p className="hero-copy">
-            Conectamos dados, tecnologia e estratégia para sua empresa decidir melhor,
-            automatizar processos e crescer com segurança.
+            Consultoria independente que conecta sistemas, automatiza rotinas e entrega
+            dashboards e aplicativos que viram decisão — do pipeline ao painel.
           </p>
           <div className="hero-actions">
             <a className="btn btn-primary" href={whatsapp} target="_blank" rel="noreferrer">
-              Falar com um especialista <b>↗</b>
+              Conversar sobre meu projeto <b>↗</b>
             </a>
-            <a className="btn btn-link" href="#servicos">
-              Conhecer soluções <span>↓</span>
+            <a className="btn btn-ghost" href="#portfolio">
+              Ver portfólio <b>↓</b>
             </a>
           </div>
-          <div className="hero-proof">
-            <div><strong>End-to-end</strong><span>Da arquitetura ao insight</span></div>
-            <div><strong>Microsoft + Databricks</strong><span>Especialização técnica</span></div>
-            <div><strong>Sob medida</strong><span>Para o seu negócio</span></div>
-          </div>
+          <ul className="hero-proof">
+            <li><strong>DP-203</strong><span>Azure Data Engineer</span></li>
+            <li><strong>DA-100</strong><span>Data Analyst</span></li>
+            <li><strong>{projects.length}+</strong><span>projetos no portfólio</span></li>
+          </ul>
         </div>
+
         <div className="hero-visual" aria-hidden="true">
-          <div className="data-orbit orbit-a"><span /></div>
-          <div className="data-orbit orbit-b"><span /></div>
-          <div className="data-core">
-            <small>DADOS</small>
-            <strong>→</strong>
-            <small>VALOR</small>
+          <div className="terminal">
+            <div className="terminal-bar"><i /><i /><i /><span>pipeline_vendas.py</span></div>
+            <pre>
+              <span className="c-mute">$</span> run pipeline --env prod{"\n"}
+              <span className="c-ok">✔</span> ingest   omie_api      <span className="c-mute">12.4k rows</span>{"\n"}
+              <span className="c-ok">✔</span> bronze → silver        <span className="c-mute">0.8s</span>{"\n"}
+              <span className="c-ok">✔</span> silver → gold         <span className="c-mute">1.2s</span>{"\n"}
+              <span className="c-ok">✔</span> refresh powerbi_dre{"\n"}
+              <span className="c-accent">→ dados prontos para decisão</span>
+            </pre>
           </div>
-          <div className="float-card card-a"><b>+ clareza</b><span>Decisões confiáveis</span></div>
-          <div className="float-card card-b"><b>+ eficiência</b><span>Processos inteligentes</span></div>
+          <div className="kpi-card">
+            <small>Status do pipeline</small>
+            <b>Saudável</b>
+            <div className="spark">
+              {[42, 55, 48, 66, 72, 81, 90].map((h, i) => <i key={i} style={{ height: `${h}%` }} />)}
+            </div>
+          </div>
+          <div className="chip-card">
+            <span className="dot" /> Atualizado automaticamente
+          </div>
         </div>
       </section>
 
-      <section className="intro section">
-        <div>
-          <p className="section-kicker">Integra Consultora</p>
-          <h2>Dados que conectam.<br />Insights que transformam.</h2>
+      <div className="stack-strip" aria-label="Tecnologias">
+        <div className="stack-track">
+          {[...stack, ...stack].map((item, i) => (
+            <span key={`${item}-${i}`} aria-hidden={i >= stack.length}>{item}</span>
+          ))}
         </div>
-        <div className="intro-copy">
+      </div>
+
+      <section className="services section" id="servicos">
+        <div className="section-heading">
+          <div>
+            <p className="kicker">O que eu entrego</p>
+            <h2>Da integração dos dados<br />ao app na mão do usuário.</h2>
+          </div>
           <p>
-            Somos especialistas em Engenharia de Dados. Atuamos de ponta a ponta,
-            da concepção da arquitetura à entrega de soluções que tornam seus dados
-            úteis, acessíveis e estratégicos.
+            Uma consultoria enxuta, com atuação de ponta a ponta: menos intermediários,
+            mais velocidade e responsabilidade técnica do início ao fim.
           </p>
-          <a href="#diferenciais">Por que escolher a Integra <span>→</span></a>
+        </div>
+        <div className="service-grid">
+          {services.map((s) => (
+            <article className="service-card" key={s.title}>
+              <div className="service-icon">{s.icon}</div>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+              <ul>{s.points.map((pt) => <li key={pt}>{pt}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="portfolio section" id="portfolio">
+        <div className="section-heading">
+          <div>
+            <p className="kicker">Portfólio</p>
+            <h2>Projetos que saíram<br />do papel.</h2>
+          </div>
+          <p>Aplicativos publicados, dashboards e arquiteturas de dados construídos com foco em performance e usabilidade.</p>
+        </div>
+
+        <div className="pf-filters" role="tablist" aria-label="Filtrar portfólio">
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === c.id}
+              className={filter === c.id ? "active" : ""}
+              onClick={() => setFilter(c.id)}
+            >
+              {c.label} <span>{counts[c.id] ?? 0}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="pf-grid">
+          {visibleProjects.map((p) => (
+            <article className={`pf-card pf-${p.category}`} key={p.id}>
+              <ProjectVisual project={p} />
+              <div className="pf-body">
+                <div className="pf-meta">
+                  <span className="pf-cat">{categories.find((c) => c.id === p.category)?.label}</span>
+                  <span className="pf-status">{p.status}</span>
+                </div>
+                <h3>{p.title}</h3>
+                <p className="pf-tagline">{p.tagline}</p>
+                <p className="pf-desc">{p.description}</p>
+                <ul className="pf-highlights">{p.highlights.map((h) => <li key={h}>{h}</li>)}</ul>
+                <div className="pf-stack">{p.stack.map((t) => <span key={t}>{t}</span>)}</div>
+                {p.link && (
+                  <a className="pf-link" href={p.link.href} target="_blank" rel="noreferrer">
+                    {p.link.label} <b>↗</b>
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="pf-cta">
+          <p>Tem um projeto parecido em mente?</p>
+          <a className="btn btn-dark" href={whatsapp} target="_blank" rel="noreferrer">Vamos conversar <b>→</b></a>
         </div>
       </section>
 
       <section className="method section" id="metodo">
         <div className="method-copy">
-          <p className="section-kicker">Nossa proposta end-to-end</p>
-          <h2>Da origem dos dados<br />à decisão de negócio.</h2>
+          <p className="kicker light">Como trabalho</p>
+          <h2>Processo claro,<br />entregas em ciclos.</h2>
           <p>
-            Conectamos todas as etapas da jornada: integramos suas fontes, estruturamos
-            o armazenamento, tratamos e modelamos os dados e entregamos informações
-            prontas para análise e ação.
+            Você acompanha cada etapa e recebe valor desde as primeiras semanas,
+            não só no fim do projeto.
           </p>
-          <div className="method-steps" aria-label="Etapas da proposta de trabalho">
-            <span>01 <b>Ingestão</b></span>
-            <span>02 <b>Armazenamento</b></span>
-            <span>03 <b>Transformação</b></span>
-            <span>04 <b>Visualização</b></span>
-          </div>
+          <ol className="steps">
+            {steps.map((s) => (
+              <li key={s.n}>
+                <span>{s.n}</span>
+                <div><b>{s.title}</b><p>{s.text}</p></div>
+              </li>
+            ))}
+          </ol>
         </div>
         <figure className="pipeline-visual">
           <img
@@ -157,115 +308,26 @@ export default function Home() {
             alt="Animação do pipeline de dados da Integra, conectando fontes, Data Lake, tratamento, Data Warehouse e ferramentas de análise"
             loading="lazy"
           />
-          <figcaption>Pipeline de dados: da origem ao consumo</figcaption>
+          <figcaption>Pipeline end-to-end · da origem ao consumo</figcaption>
         </figure>
       </section>
 
-      <section className="services section" id="servicos">
-        <div className="section-heading">
-          <div>
-            <p className="section-kicker">O que fazemos</p>
-            <h2>Soluções que transformam<br />complexidade em resultado.</h2>
-          </div>
-          <p>Estratégia, tecnologia e execução integradas em uma única parceria.</p>
-        </div>
-        <div className="service-grid">
-          {services.map((service) => (
-            <article className="service-card" key={service.title}>
-              <span className="service-number">{service.tag}</span>
-              <div className="service-icon">{service.tag === "01" ? "DB" : service.tag === "02" ? "BI" : "IA"}</div>
-              <h3>{service.title}</h3>
-              <p>{service.text}</p>
-              <ul>
-                {service.points.map((point) => <li key={point}>{point}</li>)}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="difference" id="diferenciais">
-        <div className="difference-copy">
-          <p className="section-kicker light">Por que a Integra</p>
-          <h2>Tecnologia forte.<br />Visão de negócio.</h2>
-          <p>
-            Combinamos conhecimento técnico, boas práticas de mercado e foco em
-            resultado para criar soluções robustas, escaláveis e alinhadas à realidade
-            de cada cliente.
-          </p>
-          <a className="btn btn-primary" href={email}>Conte seu desafio <b>→</b></a>
-        </div>
-        <div className="benefit-grid">
-          {benefits.map((benefit, index) => (
-            <div className="benefit" key={benefit}>
-              <span>0{index + 1}</span>
-              <p>{benefit}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="case section" id="cases">
-        <div className="case-top">
-          <div>
-            <p className="section-kicker">Experiência aplicada</p>
-            <h2>Dados integrados.<br />Negócios em movimento.</h2>
-          </div>
-          <p>
-            Projetos que conectam sistemas, automatizam rotinas e entregam uma visão
-            completa da operação.
-          </p>
-        </div>
-        <div className="case-card">
-          <div className="case-copy">
-            <span className="case-label">CASE • INTEGRAÇÃO OMIE</span>
-            <h3>Uma visão 360º da empresa em um só lugar.</h3>
-            <p>
-              Integração via API com o Omie para consolidar dados financeiros,
-              comerciais, CRM, estoque e DRE em dashboards práticos e confiáveis.
-            </p>
-            <div className="case-tags">
-              <span>Financeiro</span><span>DRE</span><span>CRM</span><span>Estoque</span>
-            </div>
-          </div>
-          <div className="dashboard-mock" aria-label="Representação visual de dashboard">
-            <div className="mock-head"><i /><span /><span /></div>
-            <div className="mock-metrics">
-              <div><small>Receita</small><b>R$ 1,24M</b><em>↑ 18%</em></div>
-              <div><small>Resultado</small><b>R$ 384K</b><em>↑ 12%</em></div>
-              <div><small>Margem</small><b>31,0%</b><em>↑ 4%</em></div>
-            </div>
-            <div className="mock-chart">
-              {[38, 62, 46, 78, 69, 92, 84].map((height, index) => (
-                <i key={index} style={{ height: `${height}%` }} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="credentials section">
-        <p>COMPETÊNCIA TÉCNICA VALIDADA</p>
-        <div>
-          <strong>Microsoft Certified</strong>
-          <span>Azure Data Engineer Associate • DP-203</span>
-        </div>
-        <div>
-          <strong>Microsoft Certified</strong>
-          <span>Data Analyst Associate • DA-100</span>
+        <p className="kicker">Competência técnica validada</p>
+        <div className="cred-grid">
+          <div><strong>Microsoft Certified</strong><span>Azure Data Engineer Associate · DP-203</span></div>
+          <div><strong>Microsoft Certified</strong><span>Data Analyst Associate · DA-100</span></div>
+          <div><strong>Conteúdo para a comunidade</strong><span>Dicas de dados no Instagram <a href={instagram} target="_blank" rel="noreferrer">@dadoscomintegra</a></span></div>
         </div>
       </section>
 
       <section className="contact" id="contato">
-        <div className="contact-pixels" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-        <p className="section-kicker light">Próximo passo</p>
-        <h2>Vamos transformar dados<br />em vantagem competitiva?</h2>
-        <p>Conte seu desafio. A Integra conecta a solução certa ao seu negócio.</p>
+        <p className="kicker">Próximo passo</p>
+        <h2>Vamos colocar seus<br />dados para trabalhar?</h2>
+        <p>Conte seu desafio em uma mensagem. Respondo com um caminho possível — sem compromisso.</p>
         <div className="contact-actions">
-          <a className="btn btn-white" href={whatsapp} target="_blank" rel="noreferrer">
-            Chamar no WhatsApp <b>↗</b>
-          </a>
-          <a className="btn btn-outline" href={email}>Enviar e-mail <b>→</b></a>
+          <a className="btn btn-primary" href={whatsapp} target="_blank" rel="noreferrer">Chamar no WhatsApp <b>↗</b></a>
+          <a className="btn btn-ghost" href={email}>Enviar e-mail <b>→</b></a>
         </div>
       </section>
 
@@ -274,12 +336,15 @@ export default function Home() {
         <div>
           <a href="mailto:consultoria@integraconsultora.com.br">consultoria@integraconsultora.com.br</a>
           <a href={whatsapp} target="_blank" rel="noreferrer">+55 43 99154-4867</a>
+          <a href={instagram} target="_blank" rel="noreferrer">Instagram</a>
         </div>
         <p>© {new Date().getFullYear()} Integra Consultora</p>
       </footer>
 
       <a className="whatsapp-float" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Falar pelo WhatsApp">
-        <span>WA</span>
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+          <path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/>
+        </svg>
       </a>
     </main>
   );
