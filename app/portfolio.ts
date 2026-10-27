@@ -31,6 +31,8 @@ export type Project = {
   status: string;
   image?: string;
   screens?: Screen[];
+  /** Telas horizontais (16:9), ex.: dashboards. */
+  landscape?: boolean;
   link?: { href: string; label: string };
   /** Linhas exibidas no mockup quando não há imagem. */
   mock?: string[];
@@ -113,6 +115,22 @@ export const projects: Project[] = [
       "Dashboard de receitas e despesas",
       "Contas e cartões",
       "Menu e recursos",
+    ]),
+  },
+  {
+    id: "painel-vendas-demo",
+    category: "dashboard",
+    title: "Painel de Vendas",
+    tagline: "Faturamento, curva ABC e reativação de clientes.",
+    description:
+      "Dashboard comercial com faturamento x meta x ano anterior, canais, regiões, mix de produtos, curva ABC e lista priorizada de clientes para reativação. Exemplo com dados fictícios.",
+    highlights: ["Faturamento x meta x ano anterior", "Curva ABC de clientes", "Prioridade de reativação"],
+    stack: ["Power BI", "DAX", "Modelagem dimensional"],
+    status: "Demonstração · dados fictícios",
+    landscape: true,
+    screens: screens("painel-vendas-demo", [
+      "Visão geral: faturamento mensal, canais, produtos e regiões",
+      "Clientes e produtos: curva ABC e prioridade de reativação",
     ]),
   },
   {

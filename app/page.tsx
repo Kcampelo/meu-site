@@ -45,9 +45,24 @@ const steps = [
 
 const stack = ["Azure", "Databricks", "Data Factory", "Power BI", "Python", "SQL", "Delta Lake", "Kotlin", "Jetpack Compose", "APIs REST"];
 
-type Gallery = { title: string; screens: Screen[]; index: number };
+type Gallery = { title: string; screens: Screen[]; index: number; landscape: boolean };
 
 function ProjectVisual({ project, onOpen }: { project: Project; onOpen: (index: number) => void }) {
+  if (project.screens?.length && project.landscape) {
+    const [cover] = project.screens;
+    return (
+      <button
+        type="button"
+        className="pf-media pf-media-dashboard pf-shot-wide"
+        onClick={() => onOpen(0)}
+        aria-label={`Ver as ${project.screens.length} telas do ${project.title}`}
+      >
+        <img src={cover.sm} alt={cover.alt} width={640} height={360} loading="lazy" decoding="async" />
+        <span className="pf-zoom">Ver {project.screens.length} telas</span>
+      </button>
+    );
+  }
+
   if (project.screens?.length) {
     return (
       <button
@@ -309,7 +324,9 @@ export default function Home() {
             <article className={`pf-card pf-${p.category}`} key={p.id}>
               <ProjectVisual
                 project={p}
-                onOpen={(index) => p.screens && setGallery({ title: p.title, screens: p.screens, index })}
+                onOpen={(index) =>
+                  p.screens && setGallery({ title: p.title, screens: p.screens, index, landscape: !!p.landscape })
+                }
               />
               <div className="pf-body">
                 <div className="pf-meta">
@@ -395,7 +412,7 @@ export default function Home() {
 
       {gallery && (
         <div
-          className="lightbox"
+          className={gallery.landscape ? "lightbox is-wide" : "lightbox"}
           role="dialog"
           aria-modal="true"
           aria-label={`Telas do ${gallery.title}`}
@@ -412,8 +429,8 @@ export default function Home() {
               <img
                 src={gallery.screens[gallery.index].lg}
                 alt={gallery.screens[gallery.index].alt}
-                width={720}
-                height={1280}
+                width={gallery.landscape ? 1600 : 720}
+                height={gallery.landscape ? 900 : 1280}
               />
               <button type="button" className="lb-nav lb-next" onClick={() => step(1)} aria-label="Próxima tela">›</button>
             </div>
@@ -427,7 +444,13 @@ export default function Home() {
                   onClick={() => setGallery({ ...gallery, index: i })}
                   aria-label={`Tela ${i + 1}: ${screen.alt}`}
                 >
-                  <img src={screen.sm} alt="" width={360} height={640} loading="lazy" />
+                  <img
+                    src={screen.sm}
+                    alt=""
+                    width={gallery.landscape ? 640 : 360}
+                    height={gallery.landscape ? 360 : 640}
+                    loading="lazy"
+                  />
                 </button>
               ))}
             </div>
